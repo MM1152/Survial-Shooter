@@ -1,3 +1,4 @@
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
@@ -5,18 +6,25 @@ public class PlayerMovement : MonoBehaviour
     private Animator animator;
 
     public float speed = 10f;
-    public float angular = 50f;
+    [Range(0.01f , 1f)]
+    public float angular;
+
     public LayerMask floorMask;
     public Camera camera;
+
     private void Awake()
     {
         animator = GetComponent<Animator>();
     }
 
-    private void Update()
+    private void LateUpdate()
+    {
+        Rotate();
+    }
+
+    private void FixedUpdate()
     {
         Move();
-        Rotate();
     }
 
     private void Move()
@@ -29,11 +37,11 @@ public class PlayerMovement : MonoBehaviour
 
         if (moveX != 0 || moveZ != 0)
         {
-            animator.SetBool(Define.ANI_PlayerMove, true);
+            animator.SetBool(Define.ANI_Move, true);
         }
         else
         {
-            animator.SetBool(Define.ANI_PlayerMove, false);
+            animator.SetBool(Define.ANI_Move, false);
         }
     }
 
@@ -41,17 +49,18 @@ public class PlayerMovement : MonoBehaviour
     {
         RaycastHit hit;
         Vector3 mousePosition = Input.mousePosition;
-        Vector3 newMousePosition = camera.ScreenToWorldPoint(new Vector3(mousePosition.x , mousePosition.y, mousePosition.y));
-
+        Vector3 newMousePosition = camera.ScreenToWorldPoint(new Vector3(mousePosition.x , mousePosition.y , mousePosition.y));
         Vector3 cameraPosition = camera.transform.position;
 
         Vector3 direction = (newMousePosition - cameraPosition).normalized;
-        Debug.DrawLine(cameraPosition , direction * 100f , Color.red);
 
-        if (Physics.Raycast(camera.transform.position, direction, out hit, float.MaxValue))
+        if (Physics.Raycast(camera.transform.position, direction, out hit, float.MaxValue , floorMask))
         {
-            Vector3 hitPoint = new Vector3(hit.point.x, 0, hit.point.z);
-            transform.LookAt(hitPoint);
+            Vector3 hitPoint = new Vector3(hit.point.x, transform.position.y, hit.point.z);
+
+            Quaternion to = Quaternion.LookRotation(hitPoint - transform.position);
+
+            transform.rotation = Quaternion.Lerp(transform.rotation, to , angular);
         }
 
     }
