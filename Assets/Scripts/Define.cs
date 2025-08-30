@@ -14,4 +14,5 @@ public static class Define
 
     public static readonly string TAG_Enemy = "Enemy";
     public static readonly string TAG_Player = "Player";
+    public static readonly string TAG_GameManager = "GameController";
 }

@@ -8,6 +8,7 @@ public class EnemyData : ScriptableObject
     public float damage;
     public float traceRadious;
     public float attackRadious;
-
+    public float attackInterval;
+    public int score;
     public float spawnPosibility;
 }

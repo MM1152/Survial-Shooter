@@ -4,6 +4,9 @@ using UnityEngine;
 public class PlayerMovement : MonoBehaviour
 {
     private Animator animator;
+    private PlayerHealth playerHealth;
+    private Rigidbody rb;
+    private GameManager gm;
 
     public float speed = 10f;
     [Range(0.01f , 1f)]
@@ -15,16 +18,25 @@ public class PlayerMovement : MonoBehaviour
     private void Awake()
     {
         animator = GetComponent<Animator>();
+        playerHealth = GetComponent<PlayerHealth>();
+        rb = GetComponent<Rigidbody>();
     }
-
+    private void Start()
+    {
+        gm = GameObject.FindWithTag(Define.TAG_GameManager);
+    }
     private void LateUpdate()
     {
+        if (playerHealth.IsDead) return;
         Rotate();
     }
 
     private void FixedUpdate()
     {
+        if (playerHealth.IsDead) return;
         Move();
+
+        rb.linearVelocity = Vector3.zero;
     }
 
     private void Move()
@@ -57,9 +69,7 @@ public class PlayerMovement : MonoBehaviour
         if (Physics.Raycast(camera.transform.position, direction, out hit, float.MaxValue , floorMask))
         {
             Vector3 hitPoint = new Vector3(hit.point.x, transform.position.y, hit.point.z);
-
             Quaternion to = Quaternion.LookRotation(hitPoint - transform.position);
-
             transform.rotation = Quaternion.Lerp(transform.rotation, to , angular);
         }
 

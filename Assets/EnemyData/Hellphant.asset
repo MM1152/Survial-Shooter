@@ -17,4 +17,6 @@ MonoBehaviour:
   damage: 50
   traceRadious: 12
   attackRadious: 2
-  spawnPosibility: 20
+  attackInterval: 1
+  score: 30
+  spawnPosibility: 5

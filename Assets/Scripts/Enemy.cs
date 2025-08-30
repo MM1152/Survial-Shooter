@@ -12,6 +12,7 @@ public class Enemy : LivingEntity
     }
     public EnemyData data;
     public ParticleSystem hitParticle;
+    public GameManager gm;
 
     private Animator animator;
     private Transform target;
@@ -19,6 +20,7 @@ public class Enemy : LivingEntity
     private Rigidbody body;
     private Collider collider;
 
+    private float lastAttackTime;
     public LayerMask targetMast;
     public Status currentStatus;
     public Status CurrentStatus
@@ -44,7 +46,6 @@ public class Enemy : LivingEntity
                     animator.SetBool(Define.ANI_Move, false);
                     break;
                 case Status.DIE:
-                    
                     animator.SetTrigger(Define.ANI_Die);
                     break;
             }
@@ -57,8 +58,17 @@ public class Enemy : LivingEntity
         nav = GetComponent<NavMeshAgent>();
         body = GetComponent<Rigidbody>();
         collider = GetComponent<Collider>();
-    }
 
+    }
+    private void Start()
+    {
+        var find = GameObject.FindWithTag("GameController");
+        if(find != null)
+        {
+            gm = find.GetComponent<GameManager>();
+            OnDeath += () => gm.AddScore(data.score);
+        }
+    }
     protected override void OnEnable()
     {
         CurrentStatus = Status.IDLE;
@@ -72,6 +82,8 @@ public class Enemy : LivingEntity
 
     public void Update()
     {
+        if (gm.pause) return;
+
         switch (currentStatus)
         {
             case Status.IDLE:
@@ -122,6 +134,16 @@ public class Enemy : LivingEntity
         {
             CurrentStatus = Status.TRACE;
             return;
+        }
+
+        if(lastAttackTime + data.attackInterval < Time.time)
+        {
+            lastAttackTime = Time.time;
+            var find = target.GetComponent<IDamageAble>();
+            if(find != null)
+            {
+                find.OnDamage(data.damage, Vector3.zero, Vector3.zero);
+            }
         }
     }
 
