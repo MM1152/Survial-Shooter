@@ -20,7 +20,7 @@ public class PlayerShooter : MonoBehaviour
         }
     }
 
-    private void LateUpdate()
+    private void Update()
     {
         if (Input.GetButton(Define.BNT_Fire) && !gm.pause && !health.IsDead)
         {

@@ -84,6 +84,8 @@ public class Enemy : LivingEntity
 
     public void Update()
     {
+        if (Status.DIE == CurrentStatus) return;
+
         if (gm.pause)
         {
             if(CurrentStatus != Status.PAUSE)

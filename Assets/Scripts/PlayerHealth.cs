@@ -32,6 +32,7 @@ public class PlayerHealth : LivingEntity
         if (IsDead) return;
         base.OnDamage(damage, hitPoint, hitNormal);
         uiManager.UpdateHpSlide(hp, maxHp);
+        uiManager.HitEffect();
         audioSource.PlayOneShot(hitClip);
     }
 

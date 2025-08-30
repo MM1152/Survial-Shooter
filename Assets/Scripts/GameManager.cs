@@ -7,6 +7,11 @@ public class GameManager : MonoBehaviour
     public UIManager uiManager;
 
     public bool pause;
+
+    private void Start()
+    {
+        uiManager.OnPause += (active) => pause = active;
+    }
     public void AddScore(int add)
     {
         score += add;
@@ -17,7 +22,7 @@ public class GameManager : MonoBehaviour
     {
         if(Input.GetKeyDown(KeyCode.Escape))
         {
-            uiManager.OpenOption(out pause);
+            uiManager.OpenOption();
         }
     }
 }
