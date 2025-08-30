@@ -17,7 +17,7 @@ public class GameManager : MonoBehaviour
     {
         if(Input.GetKeyDown(KeyCode.Escape))
         {
-            pause = uiManager.OpenOption();
+            uiManager.OpenOption(out pause);
         }
     }
 }

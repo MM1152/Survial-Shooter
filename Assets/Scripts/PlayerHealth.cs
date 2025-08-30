@@ -8,10 +8,15 @@ public class PlayerHealth : LivingEntity
     private Collider collider;
     private Animator animator;
 
+    public AudioClip hitClip;
+    public AudioClip dieClip;
+    private AudioSource audioSource;
+
     private void Awake()
     {
         animator = GetComponent<Animator>();
         collider = GetComponent<CapsuleCollider>();
+        audioSource = GetComponent<AudioSource>();
     }
 
     protected override void OnEnable()
@@ -27,13 +32,14 @@ public class PlayerHealth : LivingEntity
         if (IsDead) return;
         base.OnDamage(damage, hitPoint, hitNormal);
         uiManager.UpdateHpSlide(hp, maxHp);
+        audioSource.PlayOneShot(hitClip);
     }
 
     protected override void Die()
     {
-
         base.Die();
         collider.enabled = false;
+        audioSource.PlayOneShot(dieClip);
         animator.SetTrigger(Define.ANI_Die);
     }
 }

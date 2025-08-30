@@ -23,19 +23,22 @@ public class PlayerMovement : MonoBehaviour
     }
     private void Start()
     {
-        gm = GameObject.FindWithTag(Define.TAG_GameManager);
+        var find = GameObject.FindWithTag(Define.TAG_GameManager);
+        if(find != null)
+        {
+            gm = find.GetComponent<GameManager>();
+        }
     }
     private void LateUpdate()
     {
-        if (playerHealth.IsDead) return;
+        if (playerHealth.IsDead || gm.pause) return;
         Rotate();
     }
 
     private void FixedUpdate()
     {
-        if (playerHealth.IsDead) return;
+        if (playerHealth.IsDead || gm.pause) return;
         Move();
-
         rb.linearVelocity = Vector3.zero;
     }
 

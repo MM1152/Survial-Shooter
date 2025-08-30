@@ -8,7 +8,8 @@ public class Enemy : LivingEntity
         IDLE,
         TRACE,
         ATTACK,
-        DIE
+        DIE,
+        PAUSE
     }
     public EnemyData data;
     public ParticleSystem hitParticle;
@@ -23,6 +24,7 @@ public class Enemy : LivingEntity
     private float lastAttackTime;
     public LayerMask targetMast;
     public Status currentStatus;
+    private Status prevStatus;
     public Status CurrentStatus
     {
         get { return currentStatus; }
@@ -82,7 +84,17 @@ public class Enemy : LivingEntity
 
     public void Update()
     {
-        if (gm.pause) return;
+        if (gm.pause)
+        {
+            if(CurrentStatus != Status.PAUSE)
+            {
+                nav.isStopped = true;
+                prevStatus = CurrentStatus;
+                CurrentStatus = Status.PAUSE;
+            }
+
+            return;
+        }
 
         switch (currentStatus)
         {
@@ -94,6 +106,9 @@ public class Enemy : LivingEntity
                 break;
             case Status.ATTACK:
                 UpdateATTACK();
+                break;
+            case Status.PAUSE:
+                CurrentStatus = prevStatus;
                 break;
         }
     }

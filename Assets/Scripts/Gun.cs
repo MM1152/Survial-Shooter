@@ -6,6 +6,8 @@ public class Gun : MonoBehaviour
     private LineRenderer lineRenderer;
     private float lastShootTime;
     private bool shootAble;
+    private AudioSource audioSource;
+    public AudioClip gunShoot;
 
     public ParticleSystem gunParticle;
     public Transform shootPosition;
@@ -19,6 +21,7 @@ public class Gun : MonoBehaviour
     {
         lineRenderer = GetComponent<LineRenderer>();
         lineRenderer.enabled = false;
+        audioSource = GetComponent<AudioSource>();
     }
 
     private void OnEnable()
@@ -39,8 +42,9 @@ public class Gun : MonoBehaviour
 
             RaycastHit hit;
             Vector3 hitPosition = shootPosition.position;
+            audioSource.PlayOneShot(gunShoot);
 
-            if(Physics.Raycast(shootPosition.position , shootPosition.forward , out hit , range))
+            if (Physics.Raycast(shootPosition.position , shootPosition.forward , out hit , range))
             {
                 hitPosition = hit.point;
 

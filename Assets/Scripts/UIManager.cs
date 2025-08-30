@@ -10,13 +10,15 @@ public class UIManager : MonoBehaviour
     {
         scoreText.text = $"score : {score}";
     }
+
     public void UpdateHpSlide(float hp , float maxHp)
     {
         hpBar.value = hp / maxHp;
     }
-    public bool OpenOption()
+
+    public void OpenOption(out bool value)
     {   
         optionViewer.SetActive(!optionViewer.activeSelf);
-        return optionViewer.activeSelf;
+        value = optionViewer.activeSelf;
     }
 }
