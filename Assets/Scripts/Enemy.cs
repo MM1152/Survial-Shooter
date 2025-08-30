@@ -9,15 +9,14 @@ public class Enemy : LivingEntity
         ATTACK,
         DIE
     }
+    public EnemyData data;
+    public ParticleSystem hitParticle;
 
     private Animator animator;
     private Transform target;
     private NavMeshAgent nav;
     private Rigidbody body;
     private Collider collider;
-
-    public float traceRadious = 5f;
-    public float attackRadious = 2f;
 
     public LayerMask targetMast;
     public Status currentStatus;
@@ -56,14 +55,18 @@ public class Enemy : LivingEntity
         animator = GetComponent<Animator>();
         nav = GetComponent<NavMeshAgent>();
         body = GetComponent<Rigidbody>();
-        collider = GetComponent<CapsuleCollider>();
+        collider = GetComponent<Collider>();
     }
 
-    public void OnEnable()
+    protected override void OnEnable()
     {
         CurrentStatus = Status.IDLE;
         collider.enabled = true;
         nav.enabled = true;
+
+        maxHp = data.maxHp;
+
+        base.OnEnable();
     }
 
     public void Update()
@@ -99,7 +102,7 @@ public class Enemy : LivingEntity
             CurrentStatus = Status.IDLE;
             return;
         }
-        if (Vector3.Distance(transform.position, target.position) <= attackRadious)
+        if (Vector3.Distance(transform.position, target.position) <= data.attackRadious)
         {
             CurrentStatus = Status.ATTACK;
             return;
@@ -114,7 +117,7 @@ public class Enemy : LivingEntity
             CurrentStatus = Status.IDLE;
             return;
         }
-        if (Vector3.Distance(transform.position, target.position) > attackRadious)
+        if (Vector3.Distance(transform.position, target.position) > data.attackRadious)
         {
             CurrentStatus = Status.TRACE;
             return;
@@ -126,7 +129,7 @@ public class Enemy : LivingEntity
         Transform target = null;
         RaycastHit hit;
 
-        Collider[] colliders = Physics.OverlapSphere(transform.position, traceRadious);
+        Collider[] colliders = Physics.OverlapSphere(transform.position, data.traceRadious);
 
         if(colliders.Length != 0)
         {
