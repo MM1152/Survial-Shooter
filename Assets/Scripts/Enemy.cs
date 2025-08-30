@@ -1,3 +1,4 @@
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AI;
 public class Enemy : LivingEntity
@@ -121,6 +122,18 @@ public class Enemy : LivingEntity
         {
             CurrentStatus = Status.TRACE;
             return;
+        }
+    }
+
+    public override void OnDamage(float damage, Vector3 hitPoint, Vector3 hitNormal)
+    {
+        if (CurrentStatus == Status.DIE) return;
+        base.OnDamage(damage, hitPoint, hitNormal);
+        if(hitParticle != null)
+        {
+            hitParticle.transform.position = hitPoint;
+            hitParticle.transform.forward = hitNormal;
+            hitParticle.Play();
         }
     }
 
