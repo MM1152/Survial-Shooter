@@ -71,6 +71,10 @@ public class UIManager : MonoBehaviour
             gameOver.color = new Color(25f / 255f, 0f, 38f / 255f, i);
             yield return null;
         }
+
+
+        yield return new WaitForSeconds(3f);
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 }
 

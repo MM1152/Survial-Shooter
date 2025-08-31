@@ -1,9 +1,11 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Splines;
 
 public class Gun : MonoBehaviour
 {
-    private LineRenderer lineRenderer;
+    protected List<LineRenderer> lineRenderer = new List<LineRenderer>();
     private float lastShootTime;
     private bool shootAble;
     private AudioSource audioSource;
@@ -15,12 +17,34 @@ public class Gun : MonoBehaviour
 
     public float damage;
     public float range;
-    public float shootInterval = 0.001f;
+    public float shootInterval = 2f;
 
-    private void Awake()
+    public float radius = 1f;
+
+    public Vector3[] shootDir;
+    protected virtual void Awake()
     {
-        lineRenderer = GetComponent<LineRenderer>();
-        lineRenderer.enabled = false;
+        lineRenderer.Add(GetComponent<LineRenderer>());
+
+        for (int i = 0; i < 4; i++)
+        {
+            GameObject go = new GameObject("LineRenderes", typeof(LineRenderer));
+            go.transform.parent = transform;
+            go.transform.position = Vector3.zero;
+
+            LineRenderer line = go.GetComponent<LineRenderer>();
+            line.material = lineRenderer[0].material;
+            line.positionCount = 2;
+            line.startWidth = 0.05f;
+            line.endWidth = 0.05f;
+
+            lineRenderer.Add(line);
+        }
+
+        foreach(var line in lineRenderer)
+        {
+            line.enabled = false;
+        }
         audioSource = GetComponent<AudioSource>();
     }
 
@@ -31,35 +55,47 @@ public class Gun : MonoBehaviour
 
     private void LateUpdate()
     {
-        lineRenderer.SetPosition(0, shootPosition.position);
+        foreach (var line in lineRenderer)
+        {
+            line.SetPosition(0, shootPosition.position);
+        }
     }
 
-    public void Fire()
+    public virtual void Fire()
     {
         if (lastShootTime + shootInterval < Time.time && shootAble)
         {
+            shootDir = GetShootDir();
             lastShootTime = Time.time;
 
-            RaycastHit hit;
-            Vector3 hitPosition = shootPosition.position;
             audioSource.PlayOneShot(gunShoot);
 
-            if (Physics.Raycast(shootPosition.position , shootPosition.forward , out hit , range))
+            for(int i = 0; i< shootDir.Length; i++)
             {
-                hitPosition = hit.point;
+                Vector3 hitPosition = shootPosition.position;
+                RaycastHit hit;
 
-                var find = hit.collider.GetComponent<IDamageAble>();
-                if(find != null)
+                Vector3 dir = shootDir[i] * range - hitPosition;
+                dir.Normalize();
+
+                if (Physics.Raycast(shootPosition.position, dir, out hit, range))
                 {
-                    find.OnDamage(damage, hit.point, hit.normal);
+                    hitPosition = hit.point;
+
+                    var find = hit.collider.GetComponent<IDamageAble>();
+                    if (find != null)
+                    {
+                        find.OnDamage(damage, hit.point, hit.normal);
+                    }
                 }
-            }
-            else
-            {
-                hitPosition += shootPosition.forward * range;
+                else
+                {
+                    hitPosition += dir * range;
+                }
+                lineRenderer[i].SetPosition(1, hitPosition);
             }
 
-            lineRenderer.SetPosition(1, hitPosition);
+           
             gunParticle.Play();
             StartCoroutine(CoShoot());
         }
@@ -67,10 +103,30 @@ public class Gun : MonoBehaviour
 
     private IEnumerator CoShoot()
     {
-        lineRenderer.enabled = true;
+        foreach (var line in lineRenderer)
+        {
+            line.enabled = true;
+        }
+
         shootAble = false;
-        yield return new WaitForSeconds(shootInterval);
-        lineRenderer.enabled = false;
+        yield return new WaitForSeconds(0.1f);
+        foreach (var line in lineRenderer)
+        {
+            line.enabled = false;
+        }
         shootAble = true;
+    }
+
+    private Vector3[] GetShootDir()
+    {
+        Vector3[] dir = new Vector3[lineRenderer.Count];
+
+        for(int i = 0; i < dir.Length; i++)
+        {
+            Vector3 insideCircle = shootPosition.forward * range + Random.insideUnitSphere;
+            dir[i] = insideCircle;
+        }
+
+        return dir;
     }
 }
